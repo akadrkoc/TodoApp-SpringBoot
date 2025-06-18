@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="UTF-8">
+    <title>To-Do List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">To-Do App</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Missions</a></li>
+                <li class="nav-item"><a class="nav-link" href="/pending">Uncompleted</a></li>
+                <li class="nav-item"><a class="nav-link" href="/completed">Completed</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">To-Do List</h1>
+
+    <form class="mb-4" th:action="@{/add}" method="post">
+        <div class="input-group">
+            <input type="text" class="form-control" name="title" placeholder="Add your mission" required>
+            <button class="btn btn-primary" type="submit">Add</button>
+        </div>
+    </form>
+
+    <ul class="list-group">
+        <li th:each="todo : ${todos}" class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <input class="form-check-input me-2" type="checkbox"
+                       th:checked="${todo.completed}"
+                       th:onclick="'window.location.href=\'/toggle/' + ${todo.id} + '\';'">
+                <span th:text="${todo.title}"
+                      th:classappend="${todo.completed} ? 'text-decoration-line-through text-muted' : ''">
+                </span>
+            </div>
+            <div>
+                <a th:href="@{/edit/{id}(id=${todo.id})}" class="btn btn-sm btn-warning me-2">✏</a>
+                <a th:href="@{/complete/{id}(id=${todo.id})}" class="btn btn-sm btn-success me-2">✔</a>
+                <a th:href="@{/delete/{id}(id=${todo.id})}" class="btn btn-sm btn-danger">🗑</a>
+            </div>
+        </li>
+    </ul>
+</div>
+
+</body>
+</html>
