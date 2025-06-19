@@ -34,3 +34,4 @@ build/
 
 # Ignore to properties
 *.properties
+/todolist/src/main/resources/application.properties
