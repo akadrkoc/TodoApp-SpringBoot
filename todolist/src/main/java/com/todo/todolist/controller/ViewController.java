@@ -17,15 +17,15 @@ public class ViewController {
         this.todoRepository = todoRepository;
     }
 
-    // Ana sayfa: Tüm görevleri göster
+    // Homepage: show and sort whole list (findAllByOrderByCompletedAscCreatedAtAsc)
     @GetMapping("/")
     public String showAllTodos(Model model) {
-        List<Todo> todos = todoRepository.findAll();
+        List<Todo> todos = todoRepository.findAllByOrderByCompletedAscCreatedAtAsc();
         model.addAttribute("todos", todos);
         return "index";
     }
 
-    // Görev ekleme
+    // Adding task
     @PostMapping("/add")
     public String addTodo(@RequestParam String title) {
         Todo todo = new Todo();
@@ -35,14 +35,14 @@ public class ViewController {
         return "redirect:/";
     }
 
-    // Görevi silme
+    // Deleting task
     @GetMapping("/delete/{id}")
     public String deleteTodo(@PathVariable Long id) {
         todoRepository.deleteById(id);
         return "redirect:/";
     }
 
-    // Görevi tamamlama
+    // Completing task
     @GetMapping("/complete/{id}")
     public String completeTodo(@PathVariable Long id) {
         Todo todo = todoRepository.findById(id).orElse(null);
@@ -53,7 +53,7 @@ public class ViewController {
         return "redirect:/";
     }
 
-    // Checkbox ile tamamlanma durumunu değiştirme
+    // Changing the task situation with checkbox
     @GetMapping("/toggle/{id}")
     public String toggleTodo(@PathVariable Long id) {
         Todo todo = todoRepository.findById(id).orElse(null);
@@ -64,7 +64,7 @@ public class ViewController {
         return "redirect:/";
     }
 
-    // Tamamlanan görevleri göster
+    // Show the completed tasks
     @GetMapping("/completed")
     public String showCompletedTodos(Model model) {
         List<Todo> completed = todoRepository.findByCompletedTrue();
@@ -72,25 +72,25 @@ public class ViewController {
         return "index";
     }
 
-    // Tamamlanmamış görevleri göster
+    // Show the uncompleted tasks
     @GetMapping("/pending")
     public String showPendingTodos(Model model) {
         List<Todo> pending = todoRepository.findByCompletedFalse();
         model.addAttribute("todos", pending);
         return "index";
     }
-    // Edit sayfasını göster
+    // Show edit page
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Todo todo = todoRepository.findById(id).orElse(null);
         if (todo == null) {
-            return "redirect:/"; // Eğer görev yoksa ana sayfaya yönlendir
+            return "redirect:/";
         }
         model.addAttribute("todo", todo);
-        return "edit"; // Thymeleaf edit.html sayfasını gösterecek
+        return "edit";
     }
 
-    // Form submit sonrası güncellemeyi yap
+    // Update after form submit
     @PostMapping("/edit/{id}")
     public String updateTodo(@PathVariable Long id, @RequestParam String title) {
         Todo todo = todoRepository.findById(id).orElse(null);
@@ -100,5 +100,4 @@ public class ViewController {
         }
         return "redirect:/";
     }
-
 }

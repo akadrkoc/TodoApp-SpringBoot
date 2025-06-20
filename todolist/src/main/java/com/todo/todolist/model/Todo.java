@@ -2,6 +2,8 @@ package com.todo.todolist.model;
 
 import jakarta.persistence.*;
 
+import java.util.Date;
+
 @Entity
 public class Todo {
 
@@ -12,13 +14,16 @@ public class Todo {
     private String title;
     private boolean completed;
 
-    // Getters ve Setters
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = new Date();
+    }
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -36,4 +41,5 @@ public class Todo {
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
+    
 }
