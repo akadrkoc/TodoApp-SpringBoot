@@ -49,4 +49,18 @@ public class TodoRestController {
         todoService.deleteTodo(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/completed")
+    public List<Todo> getCompletedTodos() {
+        return todoService.getCompletedTodos();
+    }
+
+    @GetMapping("/uncompleted")
+    public List<Todo> getPendingTodos() {
+        return todoService.getPendingTodos();
+    }
+
+    @GetMapping("/sorted")
+    public List<Todo> getSortedTodos() {
+        return todoService.getSortedTodos();
+    }
 }
