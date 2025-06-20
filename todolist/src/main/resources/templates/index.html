@@ -11,9 +11,9 @@
         <a class="navbar-brand" href="/">ToDo</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Missions</a></li>
-                <li class="nav-item"><a class="nav-link" href="/pending">Uncompleted</a></li>
-                <li class="nav-item"><a class="nav-link" href="/completed">Completed</a></li>
+                <li class="nav-item"><a class="nav-link" href="/" th:classappend="${currentUri == '/'} ? 'active'">Missions</a></li>
+                <li class="nav-item"><a class="nav-link" href="/pending" th:classappend="${currentUri == '/pending'} ? 'active'">Uncompleted</a></li>
+                <li class="nav-item"><a class="nav-link" href="/completed" th:classappend="${currentUri == '/completed'} ? 'active'">Completed</a></li>
             </ul>
         </div>
     </div>
@@ -23,6 +23,7 @@
     <h1 class="text-center mb-4">To-Do List</h1>
 
     <form class="mb-4" th:action="@{/add}" method="post">
+        <input type="hidden" name="redirect" th:value="${currentUri}"/>
         <div class="input-group">
             <input type="text" class="form-control" name="title" placeholder="Add your mission" required>
             <button class="btn btn-primary" type="submit">Add</button>
@@ -30,23 +31,37 @@
     </form>
 
     <ul class="list-group">
-        <li th:each="todo : ${todos}" class="list-group-item d-flex justify-content-between align-items-center">
+        <li th:each="todo : ${todos}"
+            class="list-group-item d-flex justify-content-between align-items-center"
+            th:data-id="${todo.id}"
+            th:data-redirect="${currentUri}">
+
             <div>
                 <input class="form-check-input me-2" type="checkbox"
                        th:checked="${todo.completed}"
-                       th:onclick="'window.location.href=\'/toggle/' + ${todo.id} + '\';'">
+                       th:attr="data-id=${todo.id}, data-redirect=${currentUri}"
+                       onclick="toggleTodo(this)">
                 <span th:text="${todo.title}"
                       th:classappend="${todo.completed} ? 'text-decoration-line-through text-muted' : ''">
                 </span>
             </div>
+
             <div>
                 <a th:href="@{/edit/{id}(id=${todo.id})}" class="btn btn-sm btn-warning me-2">✏</a>
-                <a th:href="@{/complete/{id}(id=${todo.id})}" class="btn btn-sm btn-success me-2">✔</a>
-                <a th:href="@{/delete/{id}(id=${todo.id})}" class="btn btn-sm btn-danger">🗑</a>
+                <a th:href="@{/complete/{id}(id=${todo.id}, redirect=${currentUri})}" class="btn btn-sm btn-success me-2">✔</a>
+                <a th:href="@{/delete/{id}(id=${todo.id}, redirect=${currentUri})}" class="btn btn-sm btn-danger">🗑</a>
             </div>
         </li>
     </ul>
 </div>
+
+<script>
+    function toggleTodo(element) {
+        const id = element.getAttribute('data-id');
+        const redirect = element.getAttribute('data-redirect');
+        window.location.href = `/toggle/${id}?redirect=${redirect}`;
+    }
+</script>
 
 </body>
 </html>
