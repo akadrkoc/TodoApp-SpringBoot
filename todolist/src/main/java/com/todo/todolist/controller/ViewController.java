@@ -1,5 +1,6 @@
 package com.todo.todolist.controller;
 
+import com.todo.todolist.model.PriorityLevel;
 import com.todo.todolist.model.Todo;
 import com.todo.todolist.repository.TodoRepository;
 import org.springframework.stereotype.Controller;
@@ -26,10 +27,13 @@ public class ViewController {
     }
 
     @PostMapping("/add")
-    public String addTodo(@RequestParam String title, @RequestParam(required = false) String redirect) {
+    public String addTodo(@RequestParam String title,
+                          @RequestParam String priority,
+                          @RequestParam(required = false) String redirect) {
         Todo todo = new Todo();
         todo.setTitle(title);
         todo.setCompleted(false);
+        todo.setPriority(priority.toLowerCase());
         todoRepository.save(todo);
         return "redirect:" + (redirect != null ? redirect : "/");
     }
@@ -94,5 +98,12 @@ public class ViewController {
             todoRepository.save(todo);
         }
         return "redirect:" + (redirect != null ? redirect : "/");
+    }
+    @GetMapping("/priority/{level}")
+    public String showPriorityTodos(@PathVariable String level, Model model) {
+        List<Todo> todos = todoRepository.findByPriority(level.toLowerCase());
+        model.addAttribute("todos", todos);
+        model.addAttribute("currentUri", "/priority/" + level.toLowerCase());
+        return "index";
     }
 }

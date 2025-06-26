@@ -21,6 +21,10 @@ public class Todo {
     @Getter
     private boolean completed;
 
+    @Setter
+    @Getter
+    private String priority = "medium";
+
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
