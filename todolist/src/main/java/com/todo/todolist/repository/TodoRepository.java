@@ -10,7 +10,8 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     List<Todo> findByCompletedTrue();
     List<Todo> findByCompletedFalse();
     List<Todo> findAllByOrderByCompletedAscCreatedAtAsc();
-
-
     List<Todo> findByPriority(String priority);
+    List<Todo> findByCompleted(boolean completed);
+    List<Todo> findByPriorityAndCompleted(String priority, boolean completed);
+
 }

@@ -1,35 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>ToDo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .priority-flag {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .priority-low { background-color: green; }
+        .priority-medium { background-color: orange; }
+        .priority-high { background-color: red; }
+    </style>
 </head>
 <body class="bg-light">
+
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">ToDo</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/" th:classappend="${currentUri == '/'} ? 'active'">Missions</a></li>
-                <li class="nav-item"><a class="nav-link" href="/pending" th:classappend="${currentUri == '/pending'} ? 'active'">Uncompleted</a></li>
-                <li class="nav-item"><a class="nav-link" href="/completed" th:classappend="${currentUri == '/completed'} ? 'active'">Completed</a></li>
-                <li class="nav-item"><a class="nav-link" href="/priority/high" th:classappend="${currentUri == '/priority/high'} ? 'active'">High</a></li>
-                <li class="nav-item"><a class="nav-link" href="/priority/medium" th:classappend="${currentUri == '/priority/medium'} ? 'active'">Medium</a></li>
-                <li class="nav-item"><a class="nav-link" href="/priority/low" th:classappend="${currentUri == '/priority/low'} ? 'active'">Low</a></li>
-
-            </ul>
-        </div>
     </div>
 </nav>
 
 <div class="container mt-5">
     <h1 class="text-center mb-4">To-Do List</h1>
 
-    <form class="mb-4" th:action="@{/add}" method="post">
+    <form method="get" action="/" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <select name="priority" class="form-select" onchange="this.form.submit()">
+                <option value="">All Priorities</option>
+                <option value="low" th:selected="${priority == 'low'}">Low</option>
+                <option value="medium" th:selected="${priority == 'medium'}">Medium</option>
+                <option value="high" th:selected="${priority == 'high'}">High</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-select" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                <option value="completed" th:selected="${status == 'completed'}">Completed</option>
+                <option value="pending" th:selected="${status == 'pending'}">Pending</option>
+            </select>
+        </div>
+    </form>
+
+    <form th:action="@{/add}" method="post" class="mb-4">
         <input type="hidden" name="redirect" th:value="${currentUri}"/>
-        <div class="input-group mb-2">
-            <input type="text" class="form-control" name="title" placeholder="Add your mission" required>
+        <div class="input-group">
+            <input type="text" class="form-control" name="title" placeholder="New task..." required>
             <select name="priority" class="form-select" style="max-width: 150px;">
                 <option value="low">Low</option>
                 <option value="medium" selected>Medium</option>
@@ -45,7 +65,7 @@
             th:data-id="${todo.id}"
             th:data-redirect="${currentUri}">
 
-            <div>
+            <div class="d-flex align-items-center">
                 <input class="form-check-input me-2" type="checkbox"
                        th:checked="${todo.completed}"
                        th:attr="data-id=${todo.id}, data-redirect=${currentUri}"
@@ -53,12 +73,15 @@
                 <span th:text="${todo.title}"
                       th:classappend="${todo.completed} ? 'text-decoration-line-through text-muted' : ''">
                 </span>
+                <span class="priority-flag"
+                      th:classappend="' priority-' + ${todo.priority}">
+                </span>
             </div>
 
             <div>
-                <a th:href="@{/edit/{id}(id=${todo.id})}" class="btn btn-sm btn-warning me-2">✏</a>
-                <a th:href="@{/complete/{id}(id=${todo.id}, redirect=${currentUri})}" class="btn btn-sm btn-success me-2">✔</a>
-                <a th:href="@{/delete/{id}(id=${todo.id}, redirect=${currentUri})}" class="btn btn-sm btn-danger">🗑</a>
+                <a th:href="@{/edit/{id}(id=${todo.id})}" class="btn btn-sm btn-warning me-2">✏ Edit</a>
+                <a th:href="@{/complete/{id}(id=${todo.id}, redirect=${currentUri})}" class="btn btn-sm btn-success me-2">✔ Done</a>
+                <a th:href="@{/delete/{id}(id=${todo.id}, redirect=${currentUri})}" class="btn btn-sm btn-danger">🗑 Delete</a>
             </div>
         </li>
     </ul>

@@ -1,6 +1,5 @@
 package com.todo.todolist.controller;
 
-import com.todo.todolist.model.PriorityLevel;
 import com.todo.todolist.model.Todo;
 import com.todo.todolist.repository.TodoRepository;
 import org.springframework.stereotype.Controller;
@@ -19,12 +18,30 @@ public class ViewController {
     }
 
     @GetMapping("/")
-    public String showAllTodos(Model model) {
-        List<Todo> todos = todoRepository.findAllByOrderByCompletedAscCreatedAtAsc();
+    public String showAllTodos(@RequestParam(required = false) String priority,
+                               @RequestParam(required = false) String status,
+                               Model model) {
+        List<Todo> todos;
+
+        if (priority != null && !priority.isEmpty() && status != null && !status.isEmpty()) {
+            boolean isCompleted = status.equals("completed");
+            todos = todoRepository.findByPriorityAndCompleted(priority.toLowerCase(), isCompleted);
+        } else if (priority != null && !priority.isEmpty()) {
+            todos = todoRepository.findByPriority(priority.toLowerCase());
+        } else if (status != null && !status.isEmpty()) {
+            boolean isCompleted = status.equals("completed");
+            todos = todoRepository.findByCompleted(isCompleted);
+        } else {
+            todos = todoRepository.findAllByOrderByCompletedAscCreatedAtAsc();
+        }
+
         model.addAttribute("todos", todos);
         model.addAttribute("currentUri", "/");
+        model.addAttribute("priority", priority);
+        model.addAttribute("status", status);
         return "index";
     }
+
 
     @PostMapping("/add")
     public String addTodo(@RequestParam String title,
@@ -39,28 +56,29 @@ public class ViewController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteTodo(@PathVariable Long id, @RequestParam(required = false) String redirect) {
+    public String deleteTodo(@PathVariable Long id,
+                             @RequestParam(required = false) String redirect) {
         todoRepository.deleteById(id);
         return "redirect:" + (redirect != null ? redirect : "/");
     }
 
     @GetMapping("/complete/{id}")
-    public String completeTodo(@PathVariable Long id, @RequestParam(required = false) String redirect) {
-        Todo todo = todoRepository.findById(id).orElse(null);
-        if (todo != null) {
+    public String completeTodo(@PathVariable Long id,
+                               @RequestParam(required = false) String redirect) {
+        todoRepository.findById(id).ifPresent(todo -> {
             todo.setCompleted(true);
             todoRepository.save(todo);
-        }
+        });
         return "redirect:" + (redirect != null ? redirect : "/");
     }
 
     @GetMapping("/toggle/{id}")
-    public String toggleTodo(@PathVariable Long id, @RequestParam(required = false) String redirect) {
-        Todo todo = todoRepository.findById(id).orElse(null);
-        if (todo != null) {
+    public String toggleTodo(@PathVariable Long id,
+                             @RequestParam(required = false) String redirect) {
+        todoRepository.findById(id).ifPresent(todo -> {
             todo.setCompleted(!todo.isCompleted());
             todoRepository.save(todo);
-        }
+        });
         return "redirect:" + (redirect != null ? redirect : "/");
     }
 
@@ -82,23 +100,25 @@ public class ViewController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Todo todo = todoRepository.findById(id).orElse(null);
-        if (todo == null) {
-            return "redirect:/";
-        }
-        model.addAttribute("todo", todo);
-        return "edit";
+        return todoRepository.findById(id)
+                .map(todo -> {
+                    model.addAttribute("todo", todo);
+                    return "edit";
+                })
+                .orElse("redirect:/");
     }
 
     @PostMapping("/edit/{id}")
-    public String updateTodo(@PathVariable Long id, @RequestParam String title, @RequestParam(required = false) String redirect) {
-        Todo todo = todoRepository.findById(id).orElse(null);
-        if (todo != null) {
+    public String updateTodo(@PathVariable Long id,
+                             @RequestParam String title,
+                             @RequestParam(required = false) String redirect) {
+        todoRepository.findById(id).ifPresent(todo -> {
             todo.setTitle(title);
             todoRepository.save(todo);
-        }
+        });
         return "redirect:" + (redirect != null ? redirect : "/");
     }
+
     @GetMapping("/priority/{level}")
     public String showPriorityTodos(@PathVariable String level, Model model) {
         List<Todo> todos = todoRepository.findByPriority(level.toLowerCase());
