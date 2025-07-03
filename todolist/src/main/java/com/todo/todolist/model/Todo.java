@@ -1,39 +1,37 @@
 package com.todo.todolist.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Date;
 
 @Entity
 public class Todo {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
+    @Getter
     private String title;
+    @Setter
+    @Getter
     private boolean completed;
 
-    // Getters ve Setters
-    public Long getId() {
-        return id;
-    }
+    @Setter
+    @Getter
+    private String priority = "medium";
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Getter
+    @Column(name = "created_at", columnDefinition = "DATETIME")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = new Date();
     }
 }
