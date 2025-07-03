@@ -25,7 +25,8 @@ public class Todo {
     @Getter
     private String priority = "medium";
 
-    @Column(name = "created_at")
+    @Getter
+    @Column(name = "created_at", columnDefinition = "DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
@@ -33,5 +34,4 @@ public class Todo {
     protected void onCreate() {
         createdAt = new Date();
     }
-
 }
