@@ -52,5 +52,8 @@ public class TodoService {
                 .filter(todo -> !todo.isCompleted())
                 .toList();
     }
+    public List<Todo> getSortedTodos() {
+        return todoRepository.findAllByOrderByCompletedAscCreatedAtAsc();
+    }
 
 }
